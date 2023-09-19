@@ -109,21 +109,21 @@ func (s *ClientSynchronizer) Sync() error {
 	lastEthBlockSynced, err := s.state.GetLastBlock(s.ctx, dbTx)
 
 	fmt.Println("------ scf old lastEthBlockSynced ", lastEthBlockSynced)
-	//
-	//for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
-	//	fmt.Println("----index---", index)
-	//	ff, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
-	//	if err == nil {
-	//		fmt.Println("----- scf new lastEthBlockSynced ", index, ff.BlockNumber)
-	//		lastEthBlockSynced = ff
-	//		if ff.BlockNumber == 186 {
-	//			break
-	//		}
-	//	}
-	//}
-	//fmt.Println("----- scf new lastEthBlockSynced ", lastEthBlockSynced)
-	//errResrt := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
-	//fmt.Println("=== scf reset ", errResrt)
+
+	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
+		fmt.Println("----index---", index)
+		ff, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
+		if err == nil {
+			fmt.Println("----- scf new lastEthBlockSynced ", index, ff.BlockNumber)
+			lastEthBlockSynced = ff
+			if ff.BlockNumber == 489 {
+				break
+			}
+		}
+	}
+	fmt.Println("----- scf new lastEthBlockSynced ", lastEthBlockSynced)
+	errResrt := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
+	fmt.Println("=== scf reset ", errResrt)
 
 	if err != nil {
 		if errors.Is(err, state.ErrStateNotSynchronized) {
@@ -262,11 +262,11 @@ func (s *ClientSynchronizer) Sync() error {
 				log.Warn("error setting latest batch info into db. Error: ", err)
 				continue
 			}
-			log.Infof("latestSequencedBatchNumber: %d, latestSyncedBatch: %d, lastVerifiedBatchNumber: %d", latestSequencedBatchNumber, latestSyncedBatch, lastVerifiedBatchNumber)
+			//log.Infof("latestSequencedBatchNumber: %d, latestSyncedBatch: %d, lastVerifiedBatchNumber: %d", latestSequencedBatchNumber, latestSyncedBatch, lastVerifiedBatchNumber)
 			// Sync trusted state
 			if latestSyncedBatch >= latestSequencedBatchNumber {
 				startTrusted := time.Now()
-				log.Info("Syncing trusted state")
+				//log.Info("Syncing trusted state")
 				err = s.syncTrustedState(latestSyncedBatch)
 				metrics.FullTrustedSyncTime(time.Since(startTrusted))
 				if err != nil {
@@ -290,7 +290,7 @@ func (s *ClientSynchronizer) Sync() error {
 				}
 			}
 			metrics.FullSyncIterationTime(time.Since(start))
-			log.Info("L1 state fully synchronized")
+			//log.Info("L1 state fully synchronized")
 		}
 	}
 }
