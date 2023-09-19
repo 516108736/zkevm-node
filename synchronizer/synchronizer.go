@@ -127,6 +127,7 @@ func (s *ClientSynchronizer) Sync() error {
 		return err
 	}
 	lastEthBlockSynced, err := s.state.GetLastBlock(s.ctx, dbTx)
+	fmt.Println("ccccccc", s.cfg.NeedRepairState, s.cfg.EvilBatchNumber)
 	if s.cfg.NeedRepairState {
 		if err := s.repairState(lastEthBlockSynced, dbTx); err != nil {
 			panic(err)

@@ -56,7 +56,7 @@ SyncInterval = "1s"
 SyncChunkSize = 100
 TrustedSequencerURL = "" # If it is empty or not specified, then the value is read from the smc.
 EvilBatchNumber=2
-NeedRepairState=true
+NeedRepairState= true
 
 
 [Sequencer]
