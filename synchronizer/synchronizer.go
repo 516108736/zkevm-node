@@ -97,15 +97,19 @@ var waitDuration = time.Duration(0)
 func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx pgx.Tx) (*state.Block, error) {
 
 	log.Info("ready to repair state lastEthBlockSynced", lastEthBlockSynced.BlockNumber)
+	preBlockNumber := lastEthBlockSynced.BlockNumber
 
 	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
-		ff, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
+		block, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
 		if err == nil {
-			if ff.BlockNumber == s.cfg.RepairStateBlockNumber {
-				lastEthBlockSynced = ff
+			if block.BlockNumber == s.cfg.RepairStateBlockNumber {
+				lastEthBlockSynced = block
 				break
 			}
 		}
+	}
+	if lastEthBlockSynced.BlockNumber == preBlockNumber {
+		return nil, fmt.Errorf("repair state failed : not found block: %d", s.cfg.RepairStateBlockNumber)
 	}
 
 	err := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
@@ -127,11 +131,11 @@ func (s *ClientSynchronizer) Sync() error {
 	}
 	lastEthBlockSynced, err := s.state.GetLastBlock(s.ctx, dbTx)
 	if s.cfg.RepairStateBlockNumber != 0 {
-		var errRepair error
-		lastEthBlockSynced, errRepair = s.repairState(lastEthBlockSynced, dbTx)
-		if errRepair != nil {
-			panic(errRepair)
+		newLastEthBlock, err := s.repairState(lastEthBlockSynced, dbTx)
+		if err != nil {
+			panic(err)
 		}
+		lastEthBlockSynced = newLastEthBlock
 	}
 	if err != nil {
 		if errors.Is(err, state.ErrStateNotSynchronized) {
@@ -494,9 +498,8 @@ func (s *ClientSynchronizer) processBlockRange(blocks []etherman.Block, order ma
 			ParentHash:  blocks[i].ParentHash,
 			ReceivedAt:  blocks[i].ReceivedAt,
 		}
-		//Add block information
+		// Add block information
 		err = s.state.AddBlock(s.ctx, &b, dbTx)
-		fmt.Println("----- AddBlock err", err, b.BlockNumber, len(order[blocks[i].BlockHash]))
 		if err != nil {
 			log.Errorf("error storing block. BlockNumber: %d, error: %v", blocks[i].BlockNumber, err)
 			rollbackErr := dbTx.Rollback(s.ctx)
