@@ -94,7 +94,7 @@ func NewSynchronizer(
 
 var waitDuration = time.Duration(0)
 
-func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx pgx.Tx) error {
+func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx pgx.Tx) (*state.Block, error) {
 
 	log.Info("ready to repair state lastEthBlockSynced", lastEthBlockSynced.BlockNumber)
 
@@ -111,7 +111,7 @@ func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx p
 
 	err := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
 	log.Info("reset new block", lastEthBlockSynced.BlockNumber)
-	return err
+	return lastEthBlockSynced, err
 }
 
 // Sync function will read the last state synced and will continue from that point.
@@ -127,13 +127,13 @@ func (s *ClientSynchronizer) Sync() error {
 		return err
 	}
 	lastEthBlockSynced, err := s.state.GetLastBlock(s.ctx, dbTx)
-	fmt.Println("ccccccc", s.cfg.NeedRepairState, s.cfg.EvilBatchNumber)
+	fmt.Println("fuck---- before", lastEthBlockSynced.BlockNumber, s.cfg.NeedRepairState, s.cfg.EvilBatchNumber)
 	if s.cfg.NeedRepairState {
-		if err := s.repairState(lastEthBlockSynced, dbTx); err != nil {
+		if _, err := s.repairState(lastEthBlockSynced, dbTx); err != nil {
 			panic(err)
 		}
 	}
-
+	fmt.Println("fuck----end", lastEthBlockSynced.BlockNumber)
 	if err != nil {
 		if errors.Is(err, state.ErrStateNotSynchronized) {
 			log.Info("State is empty, verifying genesis block")
