@@ -100,7 +100,7 @@ func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx p
 
 	hasRepairBlock := false
 
-	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
+	for index := 0; index <= int(lastEthBlockSynced.BlockNumber); index++ {
 		block, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
 		if err == nil {
 			fmt.Println("index", lastEthBlockSynced.BlockNumber, index, block.BlockNumber)
@@ -341,8 +341,8 @@ func (s *ClientSynchronizer) syncBlocks(lastEthBlockSynced *state.Block) (*state
 
 	for {
 		toBlock := fromBlock + s.cfg.SyncChunkSize
-		log.Infof("Syncing block %d of %d", fromBlock, lastKnownBlock.Uint64())
-		log.Infof("Getting rollup info from block %d to block %d", fromBlock, toBlock)
+		//log.Infof("Syncing block %d of %d", fromBlock, lastKnownBlock.Uint64())
+		//log.Infof("Getting rollup info from block %d to block %d", fromBlock, toBlock)
 		// This function returns the rollup information contained in the ethereum blocks and an extra param called order.
 		// Order param is a map that contains the event order to allow the synchronizer store the info in the same order that is readed.
 		// Name can be different in the order struct. For instance: Batches or Name:NewSequencers. This name is an identifier to check
