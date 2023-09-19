@@ -97,18 +97,18 @@ var waitDuration = time.Duration(0)
 func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx pgx.Tx) (*state.Block, error) {
 
 	log.Info("ready to repair state lastEthBlockSynced", lastEthBlockSynced.BlockNumber)
-	preBlockNumber := lastEthBlockSynced.BlockNumber
+
+	hasRepairBlock := false
 
 	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
 		block, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
-		if err == nil {
-			if block.BlockNumber == s.cfg.RepairStateBlockNumber {
-				lastEthBlockSynced = block
-				break
-			}
+		if err == nil && block.BlockNumber == s.cfg.RepairStateBlockNumber {
+			lastEthBlockSynced = block
+			hasRepairBlock = true
+			break
 		}
 	}
-	if lastEthBlockSynced.BlockNumber == preBlockNumber {
+	if !hasRepairBlock {
 		return nil, fmt.Errorf("repair state failed : not found block: %d", s.cfg.RepairStateBlockNumber)
 	}
 
