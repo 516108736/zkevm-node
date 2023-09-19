@@ -102,6 +102,9 @@ func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx p
 
 	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
 		block, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
+		if err == nil {
+			fmt.Println("index", lastEthBlockSynced.BlockNumber, index, block.BlockNumber)
+		}
 		if err == nil && block.BlockNumber == s.cfg.RepairStateBlockNumber {
 			lastEthBlockSynced = block
 			hasRepairBlock = true
