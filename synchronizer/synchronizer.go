@@ -111,10 +111,7 @@ func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx p
 
 	err := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
 	log.Info("reset new block", lastEthBlockSynced.BlockNumber)
-	if err != nil {
-		return err
-	}
-
+	return err
 }
 
 // Sync function will read the last state synced and will continue from that point.
