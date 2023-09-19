@@ -675,10 +675,10 @@ func (s *ClientSynchronizer) Stop() {
 
 func (s *ClientSynchronizer) checkTrustedState(batch state.Batch, tBatch *state.Batch, newRoot common.Hash, dbTx pgx.Tx) bool {
 	fmt.Println("----- checkTrustedState batch", batch.BatchNumber)
-	if batch.BatchNumber == 2 {
-		fmt.Println("----- fuck check failed ")
-		return true
-	}
+	//if batch.BatchNumber == 2 {
+	//	fmt.Println("----- fuck check failed ")
+	//	return true
+	//}
 
 	//Compare virtual state with trusted state
 	var reorgReasons strings.Builder
