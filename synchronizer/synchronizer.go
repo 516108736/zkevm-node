@@ -101,9 +101,8 @@ func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx p
 	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
 		ff, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
 		if err == nil {
-			fmt.Println("----- scf new lastEthBlockSynced ", index, ff.BlockNumber)
-			lastEthBlockSynced = ff
-			if ff.BlockNumber == 194 {
+			if ff.BlockNumber == s.cfg.RepairStateBlockNumber {
+				lastEthBlockSynced = ff
 				break
 			}
 		}
@@ -127,15 +126,13 @@ func (s *ClientSynchronizer) Sync() error {
 		return err
 	}
 	lastEthBlockSynced, err := s.state.GetLastBlock(s.ctx, dbTx)
-	//fmt.Println("fuck---- before", lastEthBlockSynced.BlockNumber, s.cfg.NeedRepairState, s.cfg.EvilBatchNumber)
-	if s.cfg.NeedRepairState {
+	if s.cfg.RepairStateBlockNumber != 0 {
 		var errRepair error
 		lastEthBlockSynced, errRepair = s.repairState(lastEthBlockSynced, dbTx)
 		if errRepair != nil {
 			panic(errRepair)
 		}
 	}
-	//fmt.Println("fuck----end", lastEthBlockSynced.BlockNumber)
 	if err != nil {
 		if errors.Is(err, state.ErrStateNotSynchronized) {
 			log.Info("State is empty, verifying genesis block")
