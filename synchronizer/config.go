@@ -13,4 +13,5 @@ type Config struct {
 	// TrustedSequencerURL is the rpc url to connect and sync the trusted state
 	TrustedSequencerURL string `mapstructure:"TrustedSequencerURL"`
 	EvilBatchNumber     uint64 `mapstructure:"EvilBatchNumber"`
+	NeedRepairState     bool   `mapstructure:"NeedRepairState"`
 }

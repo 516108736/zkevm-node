@@ -94,6 +94,29 @@ func NewSynchronizer(
 
 var waitDuration = time.Duration(0)
 
+func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx pgx.Tx) error {
+
+	log.Info("ready to repair state lastEthBlockSynced", lastEthBlockSynced.BlockNumber)
+
+	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
+		ff, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
+		if err == nil {
+			fmt.Println("----- scf new lastEthBlockSynced ", index, ff.BlockNumber)
+			lastEthBlockSynced = ff
+			if ff.BlockNumber == 489 {
+				break
+			}
+		}
+	}
+
+	err := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
+	log.Info("reset new block", lastEthBlockSynced.BlockNumber)
+	if err != nil {
+		return err
+	}
+
+}
+
 // Sync function will read the last state synced and will continue from that point.
 // Sync() will read blockchain events to detect rollup updates
 func (s *ClientSynchronizer) Sync() error {
@@ -107,23 +130,11 @@ func (s *ClientSynchronizer) Sync() error {
 		return err
 	}
 	lastEthBlockSynced, err := s.state.GetLastBlock(s.ctx, dbTx)
-
-	fmt.Println("------ scf old lastEthBlockSynced ", lastEthBlockSynced)
-
-	for index := 1; index <= int(lastEthBlockSynced.BlockNumber); index++ {
-		fmt.Println("----index---", index)
-		ff, err := s.state.GetPreviousBlock(s.ctx, uint64(index), dbTx)
-		if err == nil {
-			fmt.Println("----- scf new lastEthBlockSynced ", index, ff.BlockNumber)
-			lastEthBlockSynced = ff
-			if ff.BlockNumber == 489 {
-				break
-			}
+	if s.cfg.NeedRepairState {
+		if err := s.repairState(lastEthBlockSynced, dbTx); err != nil {
+			panic(err)
 		}
 	}
-	fmt.Println("----- scf new lastEthBlockSynced ", lastEthBlockSynced)
-	errResrt := s.state.Reset(s.ctx, lastEthBlockSynced.BlockNumber, dbTx)
-	fmt.Println("=== scf reset ", errResrt)
 
 	if err != nil {
 		if errors.Is(err, state.ErrStateNotSynchronized) {
