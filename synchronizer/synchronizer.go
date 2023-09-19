@@ -103,7 +103,7 @@ func (s *ClientSynchronizer) repairState(lastEthBlockSynced *state.Block, dbTx p
 		if err == nil {
 			fmt.Println("----- scf new lastEthBlockSynced ", index, ff.BlockNumber)
 			lastEthBlockSynced = ff
-			if ff.BlockNumber == 489 {
+			if ff.BlockNumber == 194 {
 				break
 			}
 		}
