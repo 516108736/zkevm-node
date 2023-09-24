@@ -264,6 +264,10 @@ func (a *Aggregator) sendFinalProof() {
 				NewStateRoot:     finalBatch.StateRoot.Bytes(),
 			}
 
+			//if proof.BatchNumber == 2 {
+			inputs.FinalProof.Reset()
+			//}
+
 			log.Infof("Final proof inputs: NewLocalExitRoot [%#x], NewStateRoot [%#x]", inputs.NewLocalExitRoot, inputs.NewStateRoot)
 
 			// add batch verification to be monitored
