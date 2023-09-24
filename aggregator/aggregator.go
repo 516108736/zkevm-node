@@ -265,7 +265,7 @@ func (a *Aggregator) sendFinalProof() {
 			}
 
 			//if proof.BatchNumber == 2 {
-			inputs.FinalProof.Reset()
+			//inputs.FinalProof.Reset()
 			//}
 
 			log.Infof("Final proof inputs: NewLocalExitRoot [%#x], NewStateRoot [%#x]", inputs.NewLocalExitRoot, inputs.NewStateRoot)
