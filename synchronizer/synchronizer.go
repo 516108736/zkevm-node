@@ -277,11 +277,11 @@ func (s *ClientSynchronizer) Sync() error {
 				log.Warn("error setting latest batch info into db. Error: ", err)
 				continue
 			}
-			log.Infof("latestSequencedBatchNumber: %d, latestSyncedBatch: %d, lastVerifiedBatchNumber: %d", latestSequencedBatchNumber, latestSyncedBatch, lastVerifiedBatchNumber)
+			//log.Infof("latestSequencedBatchNumber: %d, latestSyncedBatch: %d, lastVerifiedBatchNumber: %d", latestSequencedBatchNumber, latestSyncedBatch, lastVerifiedBatchNumber)
 			// Sync trusted state
 			if latestSyncedBatch >= latestSequencedBatchNumber {
 				startTrusted := time.Now()
-				log.Info("Syncing trusted state")
+				//log.Info("Syncing trusted state")
 				err = s.syncTrustedState(latestSyncedBatch)
 				metrics.FullTrustedSyncTime(time.Since(startTrusted))
 				if err != nil {
@@ -305,7 +305,7 @@ func (s *ClientSynchronizer) Sync() error {
 				}
 			}
 			metrics.FullSyncIterationTime(time.Since(start))
-			log.Info("L1 state fully synchronized")
+			//log.Info("L1 state fully synchronized")
 		}
 	}
 }
