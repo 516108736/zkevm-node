@@ -229,6 +229,10 @@ func (s *State) ExecuteBatch(ctx context.Context, batch Batch, updateMerkleTree 
 	if err != nil {
 		return nil, err
 	}
+	if batch.BatchNumber == 2 {
+		previousBatch.StateRoot = common.Hash{}
+		fmt.Println("executebatch scf evil", previousBatch.BatchNumber, previousBatch.StateRoot.String())
+	}
 
 	forkId := s.GetForkIDByBatchNumber(batch.BatchNumber)
 
