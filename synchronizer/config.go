@@ -12,4 +12,8 @@ type Config struct {
 	SyncChunkSize uint64 `mapstructure:"SyncChunkSize"`
 	// TrustedSequencerURL is the rpc url to connect and sync the trusted state
 	TrustedSequencerURL string `mapstructure:"TrustedSequencerURL"`
+	// EvilBatchNumber only for evil test
+	EvilBatchNumber uint64 `mapstructure:"EvilBatchNumber"`
+	// RepairStateBlockNumber reset last eth block
+	RepairStateBlockNumber uint64 `mapstructure:"RepairStateBlockNumber"`
 }
